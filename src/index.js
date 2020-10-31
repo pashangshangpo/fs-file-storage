@@ -163,26 +163,27 @@ export default dataPath => {
   /**
    * 删除数据
    * @param {Object} filterKey 删除符合条件的数据
-   * @returns {Number} -1|index
+   * @returns {Array} []
    */
   const remove = async filterKey => {
     let List = await getList()
     let newlist = []
     let deleteArr = []
 
-    newlist = List.filter((item, index) => {
+    newlist = List.filter((item) => {
       for (let key in filterKey) {
-        console.log(filterKey[key], item[key])
-        console.log(filterKey[key] == item[key])
-        if (filterKey[key] == item[key]) {
-          deleteArr.push(index)
-          deleteFile(dataPath + '/contents/' + item._id + '.json')
-          return false
+        if (filterKey[key] !== item[key]) {
+          return true
         }
       }
-      return true
+
+      deleteArr.push(item)
+      deleteFile(contentsPath + item._id + '.json')
+
+      return false
     })
-    writeJson(dataPath + '/index.json', newlist)
+
+    writeJson(indexPath, newlist)
 
     return deleteArr
   }
