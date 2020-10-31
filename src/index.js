@@ -77,10 +77,10 @@ export default dataPath => {
     let _listJson = {
       ...listjson,
       ...{
-        _id: _fileName
+        _id: _fileName,
       },
     }
-    
+
     List.push(_listJson)
 
     await writeJson(indexPath, List)
@@ -88,7 +88,7 @@ export default dataPath => {
       ..._listJson,
       ...infoJson,
     })
-    
+
     return List.length
   }
 
