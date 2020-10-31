@@ -65,39 +65,31 @@ export default dataPath => {
    * @param {Object} infoJson 详情数据json对象
    * @returns {number} index/-1 添加成功返回当前索引位置index，添加失败返回-1
    */
-  const add = async (listjson, infoJson, index) => {
-    let List = await getList()
+  const add = async (listjson, infoJson) => {
+    const List = await getList()
     let _fileName = (
       Date.now().toString(16) +
       Math.random()
         .toString(16)
         .slice(2)
     ).slice(0, 18)
-    let _listJson = { ...{ _id: _fileName }, ...listjson }
-    let _returnRes
 
-    if (!!index || index == 0) {
-      List.splice(List, 0, _listJson)
-    } else {
-      List.push(_listJson)
+    let _listJson = {
+      ...listjson,
+      ...{
+        _id: _fileName
+      },
     }
+    
+    List.push(_listJson)
 
-    await writeJson(dataPath + '/index.json', List)
-    await writeJson(dataPath + '/contents/' + _fileName + '.json', {
+    await writeJson(indexPath, List)
+    await writeJson(join(contentsPath, _fileName + '.json'), {
       ..._listJson,
       ...infoJson,
     })
-      .then(res => {
-        if (res) {
-          _returnRes = List.length
-        } else {
-          _returnRes = '-1'
-        }
-      })
-      .catch(() => {
-        _returnRes = '-1'
-      })
-    return _returnRes
+    
+    return List.length
   }
 
   /**
