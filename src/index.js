@@ -34,10 +34,9 @@ export default dataPath => {
    * @param {Object} infoJson 详情数据json对象
    */
   const search = async data => {
-    let oldList = await getList()
-    let newlist = []
+    let list = await getList()
 
-    newlist = oldList.filter(item => {
+    return list.filter(item => {
       for (let key in data) {
         if (data[key] !== item[key]) {
           return false
@@ -46,8 +45,6 @@ export default dataPath => {
 
       return true
     })
-
-    return newlist
   }
 
   /**
@@ -100,7 +97,7 @@ export default dataPath => {
    * @param {boolean}} bool 是否替换原内容
    * @returns {JSON}} {} 修改完成后的json 数据
    */
-  const set = async (data, listjson, infoJson, Bool) => {
+  const set = async (data, listjson, infoJson, bool) => {
     let findJsons = await search(data)
     let thisJson = {}
     if (findJsons.length > 0) {
@@ -120,7 +117,7 @@ export default dataPath => {
     let new_infoJson = {}
     let _writeJson = {}
 
-    if (Bool == true) {
+    if (bool) {
       const _tjson = { ...{ _id: _fileName }, ...listjson }
       List[_index] = _tjson
       _writeJson = { ...listjson, ...infoJson }
@@ -131,7 +128,7 @@ export default dataPath => {
       new_infoJson = { ...new_listjson, ...infoJson }
       _writeJson = { ..._Infojson, ...new_infoJson }
     }
-    console.log('_fileName:', _fileName)
+
     writeJson(dataPath + '/index.json', List)
     writeJson(dataPath + '/contents/' + _fileName + '.json', _writeJson)
 
