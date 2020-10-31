@@ -1,4 +1,4 @@
-import path from 'path'
+import path, { join } from 'path'
 import { mkdir, writeJson, readJson, exists, deleteFile } from 'fs-promise'
 
 export default dataPath => {
@@ -97,9 +97,10 @@ export default dataPath => {
    * @param {boolean}} bool 是否替换原内容
    * @returns {JSON}} {} 修改完成后的json 数据
    */
-  const set = async (data, listjson, infoJson, bool) => {
-    let findJsons = await search(data)
+  const set = async (filterData, listjson, infoJson, bool) => {
+    let findJsons = await search(filterData)
     let thisJson = {}
+
     if (findJsons.length > 0) {
       thisJson = findJsons[0]
     } else {
@@ -112,25 +113,20 @@ export default dataPath => {
     })
 
     let _fileName = List[_index]._id
-    let _Infojson = await get(dataPath + '/contents/' + _fileName + '.json')
+    let _Infojson = await get(contentsPath + _fileName + '.json')
 
-    let new_infoJson = {}
     let _writeJson = {}
 
     if (bool) {
-      const _tjson = { ...{ _id: _fileName }, ...listjson }
-      List[_index] = _tjson
+      List[_index] = { ...{ _id: _fileName }, ...listjson }
       _writeJson = { ...listjson, ...infoJson }
     } else {
-      let new_listjson = { ...List[_index], ...listjson }
-      List[_index] = new_listjson
-
-      new_infoJson = { ...new_listjson, ...infoJson }
-      _writeJson = { ..._Infojson, ...new_infoJson }
+      List[_index] = { ...List[_index], ...listjson }
+      _writeJson = { ...List[_index], ..._Infojson, ...infoJson }
     }
 
-    writeJson(dataPath + '/index.json', List)
-    writeJson(dataPath + '/contents/' + _fileName + '.json', _writeJson)
+    writeJson(indexPath, List)
+    writeJson(join(contentsPath, _fileName + '.json'), _writeJson)
 
     return _writeJson
   }
