@@ -170,7 +170,7 @@ export default dataPath => {
     let newlist = []
     let deleteArr = []
 
-    newlist = List.filter((item) => {
+    newlist = List.filter(item => {
       for (let key in filterKey) {
         if (filterKey[key] !== item[key]) {
           return true
