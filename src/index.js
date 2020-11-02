@@ -52,7 +52,9 @@ export default dataPath => {
    * @param {string} path 索引数据json对象
    * @return {Object} infoJson 详情数据json对象
    */
-  const get = async path => {
+  const get = async (filterData) => {
+    let list = await getList()
+    
     return readJson(path)
   }
 
@@ -63,30 +65,20 @@ export default dataPath => {
    * @returns {number} index/-1 添加成功返回当前索引位置index，添加失败返回-1
    */
   const add = async (listjson, infoJson) => {
-    const List = await getList()
-    let _fileName = (
-      Date.now().toString(16) +
-      Math.random()
-        .toString(16)
-        .slice(2)
-    ).slice(0, 18)
 
-    let _listJson = {
-      ...listjson,
-      ...{
-        _id: _fileName,
-      },
-    }
+    let jsonlist = await getList()
+    let fileName = getfilename()
 
-    List.push(_listJson)
+    let _listJson = {...{_id:fileName},...listjson}
+    jsonlist.push(_listJson)
+    
+    console.log(indexPath)
+    writeJson(indexPath, jsonlist)
+    
+    writeJson(join(contentsPath,fileName + '.json'), {..._listJson,...infoJson})
+    console.log(indexPath)
 
-    await writeJson(indexPath, List)
-    await writeJson(join(contentsPath, _fileName + '.json'), {
-      ..._listJson,
-      ...infoJson,
-    })
-
-    return List.length
+    return jsonlist.length 
   }
 
   /**
@@ -113,7 +105,7 @@ export default dataPath => {
     })
 
     let _fileName = List[_index]._id
-    let _Infojson = await get(contentsPath + _fileName + '.json')
+    let _Infojson = await readJson(contentsPath + _fileName + '.json')
 
     let _writeJson = {}
 
@@ -126,7 +118,7 @@ export default dataPath => {
     }
 
     writeJson(indexPath, List)
-    writeJson(join(contentsPath, _fileName + '.json'), _writeJson)
+    writeJson(join(contentsPath,_fileName + '.json'), _writeJson)
 
     return _writeJson
   }
@@ -139,10 +131,19 @@ export default dataPath => {
    * @returns {JSON}} {}
    */
   const insert = async (index, listjson, infoJson) => {
-    let addfile = await add(listjson, infoJson, index)
-    let list = await getList()
+    let jsonlist = await getList()
+    const _id = getfilename()
 
-    return list
+    let _listJson = {...{_id:_id},...listjson}
+    jsonlist.splice(index,0,_listJson)
+    const writejson = {..._listJson,...infoJson};
+
+    console.log(jsonlist)
+    
+    writeJson(indexPath, jsonlist)
+    writeJson(join(contentsPath,_id + '.json'),writejson)
+
+    return jsonlist
   }
 
   /**
@@ -182,6 +183,23 @@ export default dataPath => {
     writeJson(indexPath, newlist)
 
     return deleteArr
+  }
+
+   /**
+   * 添加新文件
+   * @param {Object} filterKey 删除符合条件的数据
+   * @returns {Array} []
+   */
+
+  const getfilename = () => {
+    let _fileName = (
+      Date.now().toString(16) +
+      Math.random()
+        .toString(16)
+        .slice(2)
+    ).slice(0, 18)
+
+    return _fileName
   }
 
   init()
