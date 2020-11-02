@@ -52,9 +52,9 @@ export default dataPath => {
    * @param {string} path 索引数据json对象
    * @return {Object} infoJson 详情数据json对象
    */
-  const get = async (filterData) => {
+  const get = async filterData => {
     let list = await getList()
-    
+
     return readJson(path)
   }
 
@@ -65,20 +65,22 @@ export default dataPath => {
    * @returns {number} index/-1 添加成功返回当前索引位置index，添加失败返回-1
    */
   const add = async (listjson, infoJson) => {
-
     let jsonlist = await getList()
     let fileName = getfilename()
 
-    let _listJson = {...{_id:fileName},...listjson}
+    let _listJson = { ...{ _id: fileName }, ...listjson }
     jsonlist.push(_listJson)
-    
+
     console.log(indexPath)
     writeJson(indexPath, jsonlist)
-    
-    writeJson(join(contentsPath,fileName + '.json'), {..._listJson,...infoJson})
+
+    writeJson(join(contentsPath, fileName + '.json'), {
+      ..._listJson,
+      ...infoJson,
+    })
     console.log(indexPath)
 
-    return jsonlist.length 
+    return jsonlist.length
   }
 
   /**
@@ -118,7 +120,7 @@ export default dataPath => {
     }
 
     writeJson(indexPath, List)
-    writeJson(join(contentsPath,_fileName + '.json'), _writeJson)
+    writeJson(join(contentsPath, _fileName + '.json'), _writeJson)
 
     return _writeJson
   }
@@ -134,14 +136,14 @@ export default dataPath => {
     let jsonlist = await getList()
     const _id = getfilename()
 
-    let _listJson = {...{_id:_id},...listjson}
-    jsonlist.splice(index,0,_listJson)
-    const writejson = {..._listJson,...infoJson};
+    let _listJson = { ...{ _id: _id }, ...listjson }
+    jsonlist.splice(index, 0, _listJson)
+    const writejson = { ..._listJson, ...infoJson }
 
     console.log(jsonlist)
-    
+
     writeJson(indexPath, jsonlist)
-    writeJson(join(contentsPath,_id + '.json'),writejson)
+    writeJson(join(contentsPath, _id + '.json'), writejson)
 
     return jsonlist
   }
@@ -185,7 +187,7 @@ export default dataPath => {
     return deleteArr
   }
 
-   /**
+  /**
    * 添加新文件
    * @param {Object} filterKey 删除符合条件的数据
    * @returns {Array} []
