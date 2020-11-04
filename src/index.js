@@ -41,15 +41,18 @@ export default dataPath => {
 
   /**
    * 查找数据
-   * @param {Object} json 索引数据json对象
-   * @param {Object} infoJson 详情数据json对象
+   * @param {Object|Function} filterJson 索引数据json对象或过滤方法
    */
-  const search = async data => {
+  const search = async filterJson => {
     let list = await getList()
 
+    if (typeof filterJson === 'function') {
+      return list.filter(filterJson)
+    }
+
     return list.filter(item => {
-      for (let key in data) {
-        if (data[key] !== item[key]) {
+      for (let key of Object.keys(filterJson)) {
+        if (filterJson[key] !== item[key]) {
           return false
         }
       }
@@ -63,7 +66,7 @@ export default dataPath => {
    * @param {Object|String} filterJson 过滤对象或id
    * @return {Object} infoJson 详情数据json对象
    */
-  const get = async filterJson => {    
+  const get = async filterJson => {
     if (typeof filterJson === 'string') {
       return readJson(join(contentsPath, filterJson))
     }
