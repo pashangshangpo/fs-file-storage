@@ -60,13 +60,31 @@ export default dataPath => {
 
   /**
    * 获取单条数据
-   * @param {string} path 索引数据json对象
+   * @param {Object|String} filterJson 过滤对象或id
    * @return {Object} infoJson 详情数据json对象
    */
-  const get = async filterData => {
-    let list = await getList()
+  const get = async filterJson => {    
+    if (typeof filterJson === 'string') {
+      return readJson(join(contentsPath, filterJson))
+    }
 
-    return readJson(path)
+    const list = await getList()
+
+    const item = list.find(li => {
+      for (let key of Object.keys(filterJson)) {
+        if (li[key] !== filterJson[key]) {
+          return false
+        }
+      }
+
+      return true
+    })
+
+    if (!item) {
+      return null
+    }
+
+    return readJson(join(contentsPath, item._id))
   }
 
   /**
