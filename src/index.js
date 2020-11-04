@@ -1,8 +1,15 @@
 import path, { join } from 'path'
 import { mkdir, writeJson, readJson, exists, deleteFile } from 'fs-promise'
 
+const getUUID = () => {
+  const time = Date.now().toString(16)
+  const random = Math.random().toString(16).slice(2)
+
+  return (time + random).slice(0, 18)
+}
+
 export default dataPath => {
-  const indexPath = path.join(dataPath, 'index.json')
+  const indexPath = path.join(dataPath, 'indexs')
   const contentsPath = path.join(dataPath, 'contents')
 
   /**
@@ -11,14 +18,16 @@ export default dataPath => {
   const init = async () => {
     if (!(await exists(dataPath))) {
       await mkdir(dataPath)
+    } else {
+      return
     }
 
     if (!(await exists(indexPath))) {
-      writeJson(indexPath, [])
+      await writeJson(indexPath, [])
     }
 
     if (!(await exists(contentsPath))) {
-      mkdir(contentsPath)
+      await mkdir(contentsPath)
     }
   }
 
@@ -62,25 +71,27 @@ export default dataPath => {
    * 添加数据
    * @param {Object} json 索引数据json对象
    * @param {Object} infoJson 详情数据json对象
-   * @returns {number} index/-1 添加成功返回当前索引位置index，添加失败返回-1
+   * @returns {number} 返回数组长度
    */
-  const add = async (listjson, infoJson) => {
-    let jsonlist = await getList()
-    let fileName = getfilename()
+  const add = async (json, infoJson) => {
+    await init()
 
-    let _listJson = { ...{ _id: fileName }, ...listjson }
-    jsonlist.push(_listJson)
+    let list = await getList()
+    let id = getUUID()
 
-    console.log(indexPath)
-    writeJson(indexPath, jsonlist)
+    let newJson = Object.assign(json, {
+      _id: id
+    })
 
-    writeJson(join(contentsPath, fileName + '.json'), {
-      ..._listJson,
+    list.push(newJson)
+
+    await writeJson(indexPath, list)
+    await writeJson(join(contentsPath, id), {
+      ...newJson,
       ...infoJson,
     })
-    console.log(indexPath)
 
-    return jsonlist.length
+    return list.length
   }
 
   /**
@@ -186,25 +197,6 @@ export default dataPath => {
 
     return deleteArr
   }
-
-  /**
-   * 添加新文件
-   * @param {Object} filterKey 删除符合条件的数据
-   * @returns {Array} []
-   */
-
-  const getfilename = () => {
-    let _fileName = (
-      Date.now().toString(16) +
-      Math.random()
-        .toString(16)
-        .slice(2)
-    ).slice(0, 18)
-
-    return _fileName
-  }
-
-  init()
 
   return {
     getList,

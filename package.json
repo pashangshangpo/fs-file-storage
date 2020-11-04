@@ -8,8 +8,8 @@
   "license": "MIT",
   "scripts": {
     "before": "rimraf dist",
-    "start": "npm run before && microbundle watch",
-    "build": "npm run before && microbundle --sourcemap false && npm run doc",
+    "start": "npm run before && microbundle watch --target node --external os",
+    "build": "npm run before && microbundle --sourcemap false --target node --external os && npm run doc",
     "doc": "jsdoc2md --template doc.hbs src/index.js > README.md",
     "lint-staged": "lint-staged"
   },
