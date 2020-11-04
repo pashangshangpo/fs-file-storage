@@ -128,7 +128,7 @@ export default dataPath => {
     const list = await getList()
     const id = item._id
     const index = list.findIndex(li => li._id === id)
-    
+
     if (replace) {
       list.splice(index, 1, {
         ...json,
@@ -147,14 +147,14 @@ export default dataPath => {
 
     list.splice(index, 1, {
       ...list[index],
-      ...json
+      ...json,
     })
 
     writeJson(indexPath, list)
     writeJson(join(contentsPath, id), {
       ...item,
       ...json,
-      ...infoJson
+      ...infoJson,
     })
   }
 
