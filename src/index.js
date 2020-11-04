@@ -3,7 +3,9 @@ import { mkdir, writeJson, readJson, exists, deleteFile } from 'fs-promise'
 
 const getUUID = () => {
   const time = Date.now().toString(16)
-  const random = Math.random().toString(16).slice(2)
+  const random = Math.random()
+    .toString(16)
+    .slice(2)
 
   return (time + random).slice(0, 18)
 }
@@ -80,7 +82,7 @@ export default dataPath => {
     let id = getUUID()
 
     let newJson = Object.assign(json, {
-      _id: id
+      _id: id,
     })
 
     list.push(newJson)
