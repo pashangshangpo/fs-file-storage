@@ -159,26 +159,34 @@ export default dataPath => {
   }
 
   /**
-   * 数据插入
-   * @param {Number}} index 数据插入位置
-   * @param {json}} listjson 列表json
-   * @param {json}} infojson 修改主体json
-   * @returns {JSON}} {}
+   * 数据插入到指定位置
+   * @param {Number|String} index数据插入位置或Id
+   * @param {Object} json 数据对象
+   * @param {Object} infojson 修改主体json
    */
-  const insert = async (index, listjson, infoJson) => {
-    let jsonlist = await getList()
-    const _id = getfilename()
+  const insert = async (index, json, infoJson) => {
+    await init()
 
-    let _listJson = { ...{ _id: _id }, ...listjson }
-    jsonlist.splice(index, 0, _listJson)
-    const writejson = { ..._listJson, ...infoJson }
+    const list = await getList()
+    const id = getUUID()
+    const newJson = {
+      ...json,
+      _id: id,
+    }
 
-    console.log(jsonlist)
+    if (typeof index === 'string') {
+      index = list.findIndex(item => item._id === index)
+    }
 
-    writeJson(indexPath, jsonlist)
-    writeJson(join(contentsPath, _id + '.json'), writejson)
+    list.splice(index, 0, newJson)
 
-    return jsonlist
+    writeJson(indexPath, list)
+    writeJson(join(contentsPath, id), {
+      ...newJson,
+      ...infoJson,
+    })
+
+    return list.length
   }
 
   /**
