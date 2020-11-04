@@ -211,7 +211,7 @@ export default dataPath => {
             return false
           }
         }
-  
+
         return true
       })
     }
