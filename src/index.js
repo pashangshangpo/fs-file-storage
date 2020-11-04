@@ -119,44 +119,43 @@ export default dataPath => {
 
   /**
    * 数据修改
-   * @param {Object}}  data 索引条件
-   * @param {Object}} listjson 列表json
-   * @param {Object}} infojson 修改主体json
-   * @param {boolean}} bool 是否替换原内容
-   * @returns {JSON}} {} 修改完成后的json 数据
+   * @param {Object|String}  filterJson 过滤对象或ID
+   * @param {Object} json 数据对象
+   * @param {Object} 可选对象 { infojson = {}, replace = false }
    */
-  const set = async (filterData, listjson, infoJson, bool) => {
-    let findJsons = await search(filterData)
-    let thisJson = {}
+  const set = async (filterJson, json, { infoJson, replace } = {}) => {
+    const item = await get(filterJson)
+    const list = await getList()
+    const id = item._id
+    const index = list.findIndex(li => li._id === id)
+    
+    if (replace) {
+      list.splice(index, 1, {
+        ...json,
+        _id: id,
+      })
 
-    if (findJsons.length > 0) {
-      thisJson = findJsons[0]
-    } else {
-      return false
+      writeJson(indexPath, list)
+      writeJson(join(contentsPath, id), {
+        ...json,
+        ...infoJson,
+        _id: id,
+      })
+
+      return
     }
 
-    let List = await getList()
-    let _index = List.findIndex(item => {
-      return item._id == thisJson._id
+    list.splice(index, 1, {
+      ...list[index],
+      ...json
     })
 
-    let _fileName = List[_index]._id
-    let _Infojson = await readJson(contentsPath + _fileName + '.json')
-
-    let _writeJson = {}
-
-    if (bool) {
-      List[_index] = { ...{ _id: _fileName }, ...listjson }
-      _writeJson = { ...listjson, ...infoJson }
-    } else {
-      List[_index] = { ...List[_index], ...listjson }
-      _writeJson = { ...List[_index], ..._Infojson, ...infoJson }
-    }
-
-    writeJson(indexPath, List)
-    writeJson(join(contentsPath, _fileName + '.json'), _writeJson)
-
-    return _writeJson
+    writeJson(indexPath, list)
+    writeJson(join(contentsPath, id), {
+      ...item,
+      ...json,
+      ...infoJson
+    })
   }
 
   /**
@@ -217,10 +216,12 @@ export default dataPath => {
     }
 
     if (index > -1) {
-      writeJson(indexPath, list)
-      deleteFile(join(contentsPath, list[index]._id))
+      const id = list[index]._id
 
       list.splice(index, 1)
+
+      writeJson(indexPath, list)
+      deleteFile(join(contentsPath, id))
     }
 
     return index
