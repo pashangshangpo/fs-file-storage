@@ -1,5 +1,5 @@
 import path, { join } from 'path'
-import { mkdir, writeJson, readJson, exists, deleteFile } from 'fs-promise'
+import { writeJson, readJson, exists, deleteFile } from 'fs-promise'
 
 const getUUID = () => {
   const time = Date.now().toString(16)
@@ -15,29 +15,16 @@ export default dataPath => {
   const contentsPath = path.join(dataPath, 'contents')
 
   /**
-   * 初始文件目录
-   */
-  const init = async () => {
-    if (!(await exists(dataPath))) {
-      await mkdir(dataPath)
-    } else {
-      return
-    }
-
-    if (!(await exists(indexPath))) {
-      await writeJson(indexPath, [])
-    }
-
-    if (!(await exists(contentsPath))) {
-      await mkdir(contentsPath)
-    }
-  }
-
-  /**
    * 获取当前数据列表
    * @returns {Array} [] 返回获列表数据
    */
-  const getList = () => readJson(indexPath)
+  const getList = async () => {
+    if (await exists(indexPath)) {
+      return readJson(indexPath)
+    }
+
+    return []
+  }
 
   /**
    * 查找数据
@@ -97,8 +84,6 @@ export default dataPath => {
    * @returns {number} 返回数组长度
    */
   const add = async (json, infoJson) => {
-    await init()
-
     let list = await getList()
     let id = getUUID()
 
@@ -165,8 +150,6 @@ export default dataPath => {
    * @param {Object} infojson 修改主体json
    */
   const insert = async (index, json, infoJson) => {
-    await init()
-
     const list = await getList()
     const id = getUUID()
     const newJson = {
