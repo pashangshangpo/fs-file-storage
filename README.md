@@ -16,11 +16,10 @@ const storage = Storage('blog')
 
 storage.add(
   {
-    name: 'Hello World'
+    name: 'Hello World',
   },
   {
-    content: 'content.....'
+    content: 'content.....',
   }
 )
 ```
-
