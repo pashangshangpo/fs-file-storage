@@ -13,5 +13,14 @@
 ```js
 const Storage = require('fs-file-storage')
 const storage = Storage('blog')
+
+storage.add(
+  {
+    name: 'Hello World'
+  },
+  {
+    content: 'content.....'
+  }
+)
 ```
 

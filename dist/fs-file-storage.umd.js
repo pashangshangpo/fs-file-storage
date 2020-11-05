@@ -143,56 +143,23 @@
     var indexPath = path__default.join(dataPath, 'indexs');
     var contentsPath = path__default.join(dataPath, 'contents');
     /**
-     * 初始文件目录
+     * 获取当前数据列表
+     * @returns {Array} [] 返回列表数据
      */
 
-    var init = function () {
+    var getList = function () {
       try {
-        return Promise.resolve(exists(dataPath)).then(function (_exists) {
-
-          function _temp5(_result) {
-            return Promise.resolve(exists(indexPath)).then(function (_exists2) {
-              function _temp3() {
-                return Promise.resolve(exists(contentsPath)).then(function (_exists3) {
-                  var _temp = function () {
-                    if (!_exists3) {
-                      return Promise.resolve(mkdir(contentsPath)).then(function () {});
-                    }
-                  }();
-
-                  if (_temp && _temp.then) { return _temp.then(function () {}); }
-                });
-              }
-
-              var _temp2 = function () {
-                if (!_exists2) {
-                  return Promise.resolve(writeJson(indexPath, [])).then(function () {});
-                }
-              }();
-
-              return _temp2 && _temp2.then ? _temp2.then(_temp3) : _temp3(_temp2);
-            });
+        return Promise.resolve(exists(indexPath)).then(function (_exists) {
+          if (_exists) {
+            return readJson(indexPath);
           }
 
-          var _temp4 = function () {
-            if (!_exists) {
-              return Promise.resolve(mkdir(dataPath)).then(function () {});
-            }
-          }();
-
-          return _temp4 && _temp4.then ? _temp4.then(_temp5) : _temp5(_temp4);
+          return [];
         });
       } catch (e) {
         return Promise.reject(e);
       }
     };
-    /**
-     * 获取当前数据列表
-     * @returns {Array} [] 返回获列表数据
-     */
-
-
-    var getList = function () { return readJson(indexPath); };
     /**
      * 查找数据
      * @param {Object|Function} filterJson 索引数据json对象或过滤方法
@@ -259,18 +226,16 @@
 
     var add = function (json, infoJson) {
       try {
-        return Promise.resolve(init()).then(function () {
-          return Promise.resolve(getList()).then(function (list) {
-            var id = getUUID();
-            var newJson = Object.assign(json, {
-              _id: id
-            });
-            list.push(newJson);
-            return Promise.resolve(writeJson(indexPath, list)).then(function () {
-              return Promise.resolve(writeJson(path.join(contentsPath, id), Object.assign({}, newJson,
-                infoJson))).then(function () {
-                return list.length;
-              });
+        return Promise.resolve(getList()).then(function (list) {
+          var id = getUUID();
+          var newJson = Object.assign(json, {
+            _id: id
+          });
+          list.push(newJson);
+          return Promise.resolve(writeJson(indexPath, list)).then(function () {
+            return Promise.resolve(writeJson(path.join(contentsPath, id), Object.assign({}, newJson,
+              infoJson))).then(function () {
+              return list.length;
             });
           });
         });
@@ -329,22 +294,20 @@
 
     var insert = function (index, json, infoJson) {
       try {
-        return Promise.resolve(init()).then(function () {
-          return Promise.resolve(getList()).then(function (list) {
-            var id = getUUID();
-            var newJson = Object.assign({}, json,
-              {_id: id});
+        return Promise.resolve(getList()).then(function (list) {
+          var id = getUUID();
+          var newJson = Object.assign({}, json,
+            {_id: id});
 
-            if (typeof index === 'string') {
-              index = list.findIndex(function (item) { return item._id === index; });
-            }
+          if (typeof index === 'string') {
+            index = list.findIndex(function (item) { return item._id === index; });
+          }
 
-            list.splice(index, 0, newJson);
-            writeJson(indexPath, list);
-            writeJson(path.join(contentsPath, id), Object.assign({}, newJson,
-              infoJson));
-            return list.length;
-          });
+          list.splice(index, 0, newJson);
+          writeJson(indexPath, list);
+          writeJson(path.join(contentsPath, id), Object.assign({}, newJson,
+            infoJson));
+          return list.length;
         });
       } catch (e) {
         return Promise.reject(e);
