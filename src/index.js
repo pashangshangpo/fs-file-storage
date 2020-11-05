@@ -16,7 +16,7 @@ export default dataPath => {
 
   /**
    * 获取当前数据列表
-   * @returns {Array} [] 返回获列表数据
+   * @returns {Array} [] 返回列表数据
    */
   const getList = async () => {
     if (await exists(indexPath)) {
